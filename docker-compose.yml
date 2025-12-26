@@ -1,0 +1,18 @@
+version: '3.8'
+
+services:
+  chat:
+    build: .
+    container_name: chat
+    restart: unless-stopped
+    environment:
+      TZ: ${TZ:-UTC}
+    ports:
+      - "11411:11411"
+    volumes:
+      - ./config.json:/app/config.json
+
+networks:
+  chat:
+    driver: bridge
+
