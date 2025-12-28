@@ -20,7 +20,7 @@ type Config struct {
 func LoadConfig() (*Config, error) {
 	_ = godotenv.Load()
 
-	port := 8080
+	port := 8873
 	endpoint := os.Getenv("KRL_ENDPOINT_BASE_URL")
 	if endpoint == "" {
 		endpoint = "https://api-partner.krl.co.id/krl-webs/v1"
@@ -43,7 +43,7 @@ func LoadConfig() (*Config, error) {
 }
 
 func InitFlags() int {
-	listeningPort := flag.Int("port", 8080, "Listening port")
+	listeningPort := flag.Int("port", 8873, "Listening port")
 	flag.Parse()
 	return *listeningPort
 }

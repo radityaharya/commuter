@@ -78,6 +78,26 @@ function ComulinePage() {
     setIsMobileOpen(false);
   };
 
+  // Calculate last updated time
+  const lastUpdated = useMemo(() => {
+    let date: Date | null = null;
+
+    // Try to get from selected station schedules
+    if (schedules?.[0]?.updated_at) {
+      date = new Date(schedules[0].updated_at);
+    }
+    // Fallback to next departures (favorites)
+    else if (nextDepartures && nextDepartures.length > 0) {
+      // Find the most recent update
+      const first = nextDepartures[0].next_schedule;
+      if (first?.updated_at) {
+        date = new Date(first.updated_at);
+      }
+    }
+
+    return date;
+  }, [schedules, nextDepartures]);
+
   const sidebarProps = {
     stations,
     isLoading: isLoadingStations,
@@ -87,7 +107,8 @@ function ComulinePage() {
     searchQuery,
     setSearchQuery,
     sync,
-    isSyncing
+    isSyncing,
+    lastUpdated
   };
 
   return (
@@ -96,7 +117,14 @@ function ComulinePage() {
       <div className="md:hidden flex items-center justify-between p-4 border-b border-terminal-border bg-terminal-bg shrink-0">
         <div className="flex items-center gap-2 text-terminal-green">
           <Train className="size-6" />
-          {/* <h1 className="text-xl font-bold tracking-tight">Commuter</h1> */}
+          {lastUpdated ? (
+            <div className="flex flex-col leading-none">
+              <span className="text-[10px] text-terminal-muted uppercase tracking-wider font-bold">Last Updated</span>
+              <span className="text-sm font-mono font-bold">{format(lastUpdated, 'dd MMM HH:mm')}</span>
+            </div>
+          ) : (
+            <h1 className="text-xl font-bold tracking-tight">Comuline</h1>
+          )}
         </div>
         <Sheet open={isMobileOpen} onOpenChange={setIsMobileOpen}>
           <SheetTrigger asChild>

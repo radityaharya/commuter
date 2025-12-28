@@ -5,6 +5,7 @@ import { ScrollArea } from '@/components/ui/scroll-area';
 import { Train, Search, AlertCircle, Loader2, RefreshCw, ChevronRight, Star } from 'lucide-react';
 import type { Station } from '@/hooks/useComuline';
 import { useFavorites } from '@/store';
+import { format } from 'date-fns';
 
 interface StationSidebarProps {
   stations: Station[] | undefined;
@@ -17,6 +18,7 @@ interface StationSidebarProps {
   sync: () => void;
   isSyncing: boolean;
   isMobile?: boolean;
+  lastUpdated?: Date | null;
 }
 
 export function StationSidebar({
@@ -29,7 +31,8 @@ export function StationSidebar({
   setSearchQuery,
   sync,
   isSyncing,
-  isMobile
+  isMobile,
+  lastUpdated
 }: StationSidebarProps) {
   const { favorites, toggleFavorite } = useFavorites();
 
@@ -87,7 +90,14 @@ export function StationSidebar({
         <div className="flex items-center justify-between mb-4">
           <div className="flex items-center gap-2 text-terminal-green">
             <Train className="size-6" />
-            <h1 className="text-xl font-bold tracking-tight">Comuline</h1>
+            {lastUpdated ? (
+              <div className="flex flex-col leading-none">
+                <span className="text-[10px] text-terminal-muted uppercase tracking-wider font-bold">Last Updated</span>
+                <span className="text-sm font-mono font-bold">{format(lastUpdated, 'dd MMM HH:mm')}</span>
+              </div>
+            ) : (
+              <h1 className="text-xl font-bold tracking-tight">Comuline</h1>
+            )}
           </div>
           <div className={`flex items-center gap-1 ${isMobile ? 'mr-8' : ''}`}>
             <Dialog>
