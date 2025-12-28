@@ -117,3 +117,58 @@ export function useSync() {
     },
   });
 }
+
+export interface NextDeparture {
+  station_id: string;
+  station_name: string;
+  destination: string;
+  next_schedule: Schedule | null;
+}
+
+export function useNextDepartures(stationIds: string[]) {
+  return useQuery({
+    queryKey: ['nextDepartures', stationIds],
+    queryFn: async (): Promise<NextDeparture[]> => {
+      if (!stationIds.length) return [];
+
+      const results = await Promise.all(
+        stationIds.map(async (stationId) => {
+          try {
+            const response = await fetch(`${API_BASE_URL}/v1/schedule/${stationId}`);
+            if (!response.ok) throw new Error('Failed to fetch schedule');
+            const json = await response.json();
+            const schedules: Schedule[] = json.data;
+
+            // Find next departure for each unique destination
+            const now = new Date();
+            const upcomingSchedules = schedules.filter(s => new Date(s.departs_at) > now);
+
+            // Group by destination
+            const destinationMap = new Map<string, Schedule>();
+            upcomingSchedules.forEach(schedule => {
+              const destination = schedule.route.split('-')[1] || schedule.route;
+              if (!destinationMap.has(destination)) {
+                destinationMap.set(destination, schedule);
+              }
+            });
+
+            // Convert to array of NextDeparture
+            return Array.from(destinationMap.entries()).map(([destination, schedule]) => ({
+              station_id: stationId,
+              station_name: '', // Will be filled from stations data
+              destination,
+              next_schedule: schedule,
+            }));
+          } catch (error) {
+            return [];
+          }
+        })
+      );
+
+      // Flatten the array of arrays
+      return results.flat();
+    },
+    enabled: stationIds.length > 0,
+    refetchInterval: 30000, // Refresh every 30s
+  });
+}

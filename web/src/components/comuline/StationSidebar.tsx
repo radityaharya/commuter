@@ -16,6 +16,7 @@ interface StationSidebarProps {
   setSearchQuery: (query: string) => void;
   sync: () => void;
   isSyncing: boolean;
+  isMobile?: boolean;
 }
 
 export function StationSidebar({
@@ -27,7 +28,8 @@ export function StationSidebar({
   searchQuery,
   setSearchQuery,
   sync,
-  isSyncing
+  isSyncing,
+  isMobile
 }: StationSidebarProps) {
   const { favorites, toggleFavorite } = useFavorites();
 
@@ -87,7 +89,7 @@ export function StationSidebar({
             <Train className="size-6" />
             <h1 className="text-xl font-bold tracking-tight">Comuline</h1>
           </div>
-          <div className="flex items-center gap-1">
+          <div className={`flex items-center gap-1 ${isMobile ? 'mr-8' : ''}`}>
             <Dialog>
               <DialogTrigger asChild>
                 <Button
